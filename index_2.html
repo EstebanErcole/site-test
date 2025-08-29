@@ -332,7 +332,7 @@ content: "";
     </div>
     <div class="reader-content">
       <div class="reader-view" id="reader-view">
-        <img class="comic-page" id="viewer" src="page_1.png" />
+       
       </div>
     </div>
     <div class="reader-bottom">
@@ -391,33 +391,63 @@ content: "";
       }
     });
 
-    function updateImage() {
-      viewer.src = images[currentIndex];
-      // Reinicia el scroll del contenedor
-      readerView.scrollTop = 0;
-      readerView.scrollLeft = 0;
+    // Renderizamos todas las páginas
+    images.forEach(src => {
+      const img = document.createElement("img");
+      img.src = src;
+      img.className = "comic-page" 
+      img.id="viewer" 
+      readerView.appendChild(img);
+    });
 
-      const percentage = Math.round((currentIndex / (images.length - 1)) * 100);
-      progressAmount.textContent = `${percentage}%`;
-      barProgress.style.width = `${percentage}%`;
+    const pageElements = readerView.querySelectorAll("img");
+    let currentPage = 0; // índice de la página actual
+
+    // Actualizar progreso en base al scroll
+    readerView.addEventListener("scroll", () => {
+      const scrollTop = readerView.scrollTop;
+    const scrollHeight = readerView.scrollHeight - readerView.clientHeight;
+    const percentage = Math.round((scrollTop / scrollHeight) * 100);
+      progressAmount.textContent = `Progreso: ${percentage}%`;
+      barProgress.style.width =  `${percentage}%`;
+
+      // Detectar en qué página estamos (la que está más arriba visible)
+     let closestPage = 0;
+    let minDistance = Infinity;
+
+    pageElements.forEach((page, index) => {
+      const distance = Math.abs(page.offsetTop - readerView.scrollTop);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPage = index;
+      }
+    });
+
+    currentPage = closestPage;
+    });
+
+    // Función para hacer scroll hasta una página
+   function scrollToPage(index) {
+    if (index >= 0 && index < pageElements.length) {
+      readerView.scrollTo({
+        top: pageElements[index].offsetTop,
+        behavior: "smooth"
+      });
+      currentPage = index;
     }
+  }
 
-    nextButton.addEventListener("click", () => {
-      if (currentIndex < images.length - 1) {
-        currentIndex++;
-        updateImage();
-      }
-    });
+  nextButton.addEventListener("click", () => {
+    if (currentPage < pageElements.length - 1) {
+      scrollToPage(currentPage + 1);
+    }
+  });
 
-    prevButton.addEventListener("click", () => {
-      if (currentIndex > 0) {
-        currentIndex--;
-        updateImage();
-      }
-    });
-
-    //init
-    updateImage();
+  prevButton.addEventListener("click", () => {
+    if (currentPage > 0) {
+      scrollToPage(currentPage - 1);
+    }
+  });
 });
   </script>
 </body>
