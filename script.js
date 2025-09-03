@@ -90,19 +90,34 @@
   });
 })
 
-var cardAnimation = gsap.set('.character_card_perspective', {position:'sticky',  paused:true});
+// Animate the card rotate animation
+gsap.set('.character_card', {rotationY:0});
 
-var cardAnimationInd = gsap.set('.character_card', {rotationY: 0,  paused:true});
-  
+var rotate = gsap.timeline({
+  scrollTrigger:{
+    trigger: ".section_characters",
+    pin: true,
+    scrub:0.2,
+    start: "top top",
+    end: "bottom 100px",
+  }
+})
+.to('.rotationY', {
+  rotation:180,
+  duration:1, ease:'none',
+})
+
+// Animate the Card wrapper sticky position
+var cardAnimation = gsap.set('.character_card_perspective', {position:'sticky',  paused:true});
+//var cardAnimationInd = gsap.set('.character_card', {rotationY: 0,  paused:true});  
 ScrollTrigger.create({
   trigger: ".section_characters",
   start: "top top",
   end: "bottom 100px",
-  onEnter: () => [cardAnimation.play() , cardAnimationInd.play()],
-  onLeave: () => [cardAnimation.reverse(), cardAnimationInd.reverse()],
-  onLeaveBack: () => [cardAnimation.reverse(), cardAnimationInd.reverse()],
-  onEnterBack: () => [cardAnimation.reverse(), cardAnimationInd.reverse()],
-  markers:true
+  onEnter: () => cardAnimation.play(),
+  onLeave: () => cardAnimation.reverse(),
+  onLeaveBack: () => cardAnimation.reverse(),
+  onEnterBack: () => cardAnimation.reverse(),
 });
 
 
